@@ -1,0 +1,20 @@
+models:
+  Student:
+    Classes: 
+        type: "list"
+        itemType: "string"
+    Grade:
+        type: "number"
+  Person:
+        Name:
+            type: "string"
+        Age:
+            type: "number"
+        Addresses:
+            type: "list"
+            itemType: "Address"
+  Address:
+        City: 
+            type: "string"
+        Country:
+            type: "string"
