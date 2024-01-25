@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to read YAML file: %v", err)
 	}
-	log.Println("Successfully loaded models yaml")
+	log.Println("Loaded models yaml")
 
 	var data map[string]interface{}
 	if err := yaml.Unmarshal(yamlFile, &data); err != nil {
@@ -45,6 +45,7 @@ func main() {
 	// Loop through each model and generate structs
 	for modelName, modelFields := range modelsData {
 		// Write the struct definition to the file
+		log.Println(fmt.Sprintf("Load model- %s", modelName))
 		fmt.Fprintf(file, "type %s struct {\n", modelName)
 		generateFields(file, modelFields)
 		fmt.Fprintln(file, "}\n")
@@ -69,8 +70,6 @@ func getGoType(fieldType interface{}) string {
 		return mapYAMLTypeToGoType(t, nil)
 	case map[interface{}]interface{}:
 		if t["type"] != nil {
-			log.Println("***")
-			log.Println(t["type"].(string))
 			if t["itemType"] != nil {
 				return mapYAMLTypeToGoType(t["type"].(string), t["itemType"].(string))
 			} else {
