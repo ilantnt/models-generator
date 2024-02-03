@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -27,20 +28,20 @@ func main() {
 	}
 
 	// Open a new Go file for writing
-	if _, err := os.Stat("generated-models"); os.IsNotExist(err) {
-		err := os.Mkdir("generated-models", os.ModePerm)
+	if _, err := os.Stat("generated_models"); os.IsNotExist(err) {
+		err := os.Mkdir("generated_models", os.ModePerm)
 		if err != nil {
 			log.Println(err)
 		}
 	}
-	file, err := os.Create("generated-models/models.go")
+	file, err := os.Create("generated_models/models.go")
 	if err != nil {
 		log.Fatalf("failed to create Go file: %v", err)
 	}
 	defer file.Close()
 
 	// Write the package header
-	fmt.Fprintln(file, "package generated_models\n")
+	log.Println(file, "package generated_models")
 
 	// Loop through each model and generate structs
 	for modelName, modelFields := range modelsData {
@@ -48,7 +49,6 @@ func main() {
 		log.Println(fmt.Sprintf("Load model- %s", modelName))
 		fmt.Fprintf(file, "type %s struct {\n", modelName)
 		generateFields(file, modelFields)
-		fmt.Fprintln(file, "}\n")
 	}
 	log.Println("Successfully genereated models")
 }
@@ -57,7 +57,8 @@ func generateFields(file *os.File, fields interface{}) {
 	switch v := fields.(type) {
 	case map[interface{}]interface{}:
 		for fieldName, fieldType := range v {
-			fmt.Fprintf(file, "\t%s %s\n", fieldName, getGoType(fieldType))
+			jsonTagName := strings.ToLower(fmt.Sprintf("json:\"%s\"", fieldName))
+			fmt.Fprintf(file, "\t%s %s `%s`\n", fieldName, getGoType(fieldType), jsonTagName)
 		}
 	default:
 		log.Fatal("unexpected type encountered while generating fields")
